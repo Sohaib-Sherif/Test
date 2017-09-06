@@ -25,8 +25,13 @@ public class Age {
 			System.out.println("Null caught in constructor");//anyway it's caused by empty birthday and difference in display
 		} catch (InputMismatchException e) {
 			System.out.println("Invalid input.");
+		} catch(InvalidInputDate error) {
+			System.out.println("Invalid Date. Try Again.");
+		} catch(WayOld e) {
+			System.out.println("You're either a time traveler or found the elixir of life");
 		}
 	}
+
 
 	public void CalculateAge() throws DateTimeException {
 		birthday = LocalDate.of(Years,Months,Days);
@@ -40,42 +45,39 @@ public class Age {
 		System.out.println("You were born in "+birthday.getDayOfWeek().getDisplayName(TextStyle.FULL, Locale.getDefault()));
 	}
 
-	public void ReadAge() throws InputMismatchException {
-		try(Scanner getNumbers = new Scanner(System.in)) {
-			System.out.println("Enter Year of birth");
-			Years= getNumbers.nextInt();
-			System.out.println("Enter Month");
-			Months= getNumbers.nextInt();
-			System.out.println("Enter Day");
-			Days= getNumbers.nextInt();
-			if (Years <= 0 || Months <=0 || Days <= 0 || Months > 12 || Days > 31) {
-				throw new InvalidInputDate();
-			}
-			if (Years > Present.getYear() || Years < (Present.getYear()-100)) {
+	public void ReadAge() throws InputMismatchException, InvalidInputDate, WayOld {
+		Scanner getNumbers = new Scanner(System.in);
+		System.out.println("Enter Year of birth");
+		Years= getNumbers.nextInt();
+		System.out.println("Enter Month");
+		Months= getNumbers.nextInt();
+		System.out.println("Enter Day");
+		Days= getNumbers.nextInt();
+		getNumbers.close();
+		if (Years <= 0 || Months <=0 || Days <= 0 || Months > 12 || Days > 31) {
+			throw new InvalidInputDate();
+		}
+		if (Years > Present.getYear() || Years < (Present.getYear()-100)) {
+			throw new WayOld();
+		}
+		if (Years == Present.getYear()) {
+			if (Months > Present.getMonthValue()) {
 				throw new WayOld();
 			}
-			if (Years == Present.getYear()) {
-				if (Months > Present.getMonthValue()) {
-					throw new WayOld();
-				}
-				else if(Days > Present.getDayOfMonth()) {
-					throw new WayOld();
-				}
-				else if(Days == Present.getDayOfMonth()){
-					throw new InvalidInputDate();
-				}
+			else if(Days > Present.getDayOfMonth()) {
+				throw new WayOld();
 			}
-			/* CalculateAge(); this calls the method to give birthday and difference a value,but when values aren't assigned
+			else if(Days == Present.getDayOfMonth()){
+				throw new InvalidInputDate();
+			}
+		}
+		/* CalculateAge(); this calls the method to give birthday and difference a value,but when values aren't assigned
 			the call in main to the display method gives a NullPointerException.
 			I'll see what I can do to improve.*/
-			//Display(); I put display here to eliminate Null pointer
-		} catch(InvalidInputDate error) { //OR sign to handle multiple exceptions(InvalidInputDate | DateTimeException e)
-			System.out.println("Invalid Date. Try Again.");
-		} catch(WayOld e) {
-			System.out.println("You're either a time traveler or found the elixir of life");
-		}
-	}
-} 
+		//Display(); I put display here to eliminate Null pointer
+	}  //OR sign to handle multiple exceptions(InvalidInputDate | DateTimeException e)
+}
+
 /* Even though after re-writing my code to use a more Object-oriented style, I was hesitant and thought when I first run it
  * that it will not work, but it did, I still think that it needs better writing, I'm either not convinced or
  * still not used to this style. 
