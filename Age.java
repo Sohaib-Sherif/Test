@@ -1,31 +1,46 @@
 import java.time.LocalDate;
 import java.time.Period;
-import java.time.format.DateTimeFormatter;
-import java.time.format.FormatStyle;
 import java.time.format.TextStyle;
 import java.util.InputMismatchException;
 import java.util.Locale;
 import java.util.Scanner;
 import java.time.DateTimeException;
-@SuppressWarnings("unused")
+
 public class Age {
 	int Days,Months,Years;
 	LocalDate Present = LocalDate.now();
-	LocalDate birthday = LocalDate.of(Years,Months,Days);
-	Period Difference = Period.between(birthday, Present);
+	LocalDate birthday;
+	Period Difference;
+
 	public Age() {
-		System.out.print(Difference.getYears()+" Years, ");
-		System.out.print(Difference.getMonths()+" Months ");
-		System.out.print("and "+Difference.getDays()+" Days.");
-		System.out.println(" ");
+		try {
+			ReadAge();
+			CalculateAge();
+			Display();	
+		} catch (DateTimeException e) {
+			System.out.println("Invalid Date. Try Again.");
+			System.out.println(Years+" is not a leap year.");
+			System.out.println("caught in constructor");
+		} catch (NullPointerException e) { // I don't think it's necessary since I stop everything at DateTimeException.
+			System.out.println("Null caught in constructor");//anyway it's caused by empty birthday and difference in display
+		} catch (InputMismatchException e) {
+			System.out.println("Invalid input.");
+		}
+	}
+
+	public void CalculateAge() throws DateTimeException {
+		birthday = LocalDate.of(Years,Months,Days);
+		Difference = Period.between(birthday, Present);
+	}
+	public void Display() throws NullPointerException {
+		System.out.print(Difference.getYears()+" Years, "); // looks like when I don't enter a valid year, this become empty
+		System.out.print(Difference.getMonths()+" Months ");// and return a null pointer
+		System.out.println("and "+Difference.getDays()+" Days.");
 		System.out.println("You have been alive for "+Difference.toTotalMonths()+" Months");
 		System.out.println("You were born in "+birthday.getDayOfWeek().getDisplayName(TextStyle.FULL, Locale.getDefault()));
-
 	}
-}
 
-class ReadAge extends Age {
-	public ReadAge() {
+	public void ReadAge() throws InputMismatchException {
 		try(Scanner getNumbers = new Scanner(System.in)) {
 			System.out.println("Enter Year of birth");
 			Years= getNumbers.nextInt();
@@ -50,19 +65,23 @@ class ReadAge extends Age {
 					throw new InvalidInputDate();
 				}
 			}
-			} catch(InvalidInputDate error) { //OR sign to handle multiple exceptions(InvalidInputDate | DateTimeException e)
-				System.out.println("Invalid Date. Try Again.");
-			} catch(WayOld e) {
-				System.out.println("You're either a time traveler or found the elixir of life");
-			} catch (InputMismatchException e) {
-				System.out.println("Nice Try.");
-			} catch (DateTimeException e) {
-				System.out.println("Invalid Date. Try Again.");
-				System.out.println(birthday.getYear()+" is not a leap year.");
-			}
+			/* CalculateAge(); this calls the method to give birthday and difference a value,but when values aren't assigned
+			the call in main to the display method gives a NullPointerException.
+			I'll see what I can do to improve.*/
+			//Display(); I put display here to eliminate Null pointer
+		} catch(InvalidInputDate error) { //OR sign to handle multiple exceptions(InvalidInputDate | DateTimeException e)
+			System.out.println("Invalid Date. Try Again.");
+		} catch(WayOld e) {
+			System.out.println("You're either a time traveler or found the elixir of life");
+		}
 	}
 } 
-
+/* Even though after re-writing my code to use a more Object-oriented style, I was hesitant and thought when I first run it
+ * that it will not work, but it did, I still think that it needs better writing, I'm either not convinced or
+ * still not used to this style. 
+ * EDIT:-  I always change my code numerous times and now I think I finally made it to work without problems
+ * the only thing is that I feel it's not so different from my previous work, it's all the same except I 
+ * divided some lines on methods without putting everything in the constructor.*/
 
 
 
